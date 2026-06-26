@@ -1,2 +1,2 @@
-# school-erp-2
+# school-erp-1
 school erp management system

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">School ERP Management System</div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="students.html">Students</a>
+            <a href="teachers.html">Teachers</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="marks.html">Marks</a>
+            <a href="index.html" onclick="logout()">Logout</a>
+        </div>
+
+        <div class="card-container">
+            <div class="card">
+                <h2>Total Students</h2>
+                <p id="studentCount">0</p>
+            </div>
+            <div class="card">
+                <h2>Total Teachers</h2>
+                <p id="teacherCount">0</p>
+            </div>
+            <div class="card">
+                <h2>Attendance Records</h2>
+                <p id="attendanceCount">0</p>
+            </div>
+            <div class="card">
+                <h2>Marks Records</h2>
+                <p id="marksCount">0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem("loggedIn") !== "true") {
+            window.location.href = "index.html";
+        }
+
+        async function loadDashboard() {
+            const res = await fetch("http://127.0.0.1:5000/dashboard");
+            const data = await res.json();
+
+            document.getElementById("studentCount").innerText = data.students;
+            document.getElementById("teacherCount").innerText = data.teachers;
+            document.getElementById("attendanceCount").innerText = data.attendance;
+            document.getElementById("marksCount").innerText = data.marks;
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedIn");
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

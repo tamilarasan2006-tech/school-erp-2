@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">Teacher Management</div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="students.html">Students</a>
+            <a href="teachers.html">Teachers</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="marks.html">Marks</a>
+        </div>
+
+        <form id="teacherForm">
+            <input type="text" id="teacher_name" placeholder="Teacher Name" required>
+            <input type="text" id="subject" placeholder="Subject" required>
+            <input type="text" id="phone" placeholder="Phone Number" required>
+            <button type="submit">Add Teacher</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Phone</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="teacherTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000/teachers";
+
+        async function loadTeachers() {
+            const res = await fetch(API);
+            const teachers = await res.json();
+
+            let rows = "";
+            teachers.forEach(teacher => {
+                rows += `
+                    <tr>
+                        <td>${teacher.id}</td>
+                        <td>${teacher.name}</td>
+                        <td>${teacher.subject}</td>
+                        <td>${teacher.phone}</td>
+                        <td><button onclick="deleteTeacher(${teacher.id})">Delete</button></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("teacherTable").innerHTML = rows;
+        }
+
+        document.getElementById("teacherForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const teacher = {
+                name: document.getElementById("teacher_name").value,
+                subject: document.getElementById("subject").value,
+                phone: document.getElementById("phone").value
+            };
+
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(teacher)
+            });
+
+            this.reset();
+            loadTeachers();
+        });
+
+        async function deleteTeacher(id) {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            loadTeachers();
+        }
+
+        loadTeachers();
+    </script>
+</body>
+</html>

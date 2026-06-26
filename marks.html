@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">Marks Management</div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="students.html">Students</a>
+            <a href="teachers.html">Teachers</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="marks.html">Marks</a>
+        </div>
+
+        <form id="marksForm">
+            <input type="text" id="mark_student_name" placeholder="Student Name" required>
+            <input type="text" id="mark_subject" placeholder="Subject" required>
+            <input type="number" id="mark_value" placeholder="Mark" required>
+            <button type="submit">Add Mark</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student Name</th>
+                    <th>Subject</th>
+                    <th>Mark</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="marksTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000/marks";
+
+        async function loadMarks() {
+            const res = await fetch(API);
+            const records = await res.json();
+
+            let rows = "";
+            records.forEach(item => {
+                rows += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.student_name}</td>
+                        <td>${item.subject}</td>
+                        <td>${item.mark}</td>
+                        <td><button onclick="deleteMark(${item.id})">Delete</button></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("marksTable").innerHTML = rows;
+        }
+
+        document.getElementById("marksForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const mark = {
+                student_name: document.getElementById("mark_student_name").value,
+                subject: document.getElementById("mark_subject").value,
+                mark: document.getElementById("mark_value").value
+            };
+
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(mark)
+            });
+
+            this.reset();
+            loadMarks();
+        });
+
+        async function deleteMark(id) {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            loadMarks();
+        }
+
+        loadMarks();
+    </script>
+</body>
+</html>

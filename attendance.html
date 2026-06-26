@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">Attendance Management</div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="students.html">Students</a>
+            <a href="teachers.html">Teachers</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="marks.html">Marks</a>
+        </div>
+
+        <form id="attendanceForm">
+            <input type="text" id="student_name" placeholder="Student Name" required>
+            <input type="date" id="date" required>
+            <select id="status" required>
+                <option value="">Select Status</option>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+            </select>
+            <button type="submit">Add Attendance</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000/attendance";
+
+        async function loadAttendance() {
+            const res = await fetch(API);
+            const records = await res.json();
+
+            let rows = "";
+            records.forEach(item => {
+                rows += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.student_name}</td>
+                        <td>${item.date}</td>
+                        <td>${item.status}</td>
+                        <td><button onclick="deleteAttendance(${item.id})">Delete</button></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("attendanceTable").innerHTML = rows;
+        }
+
+        document.getElementById("attendanceForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const attendance = {
+                student_name: document.getElementById("student_name").value,
+                date: document.getElementById("date").value,
+                status: document.getElementById("status").value
+            };
+
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(attendance)
+            });
+
+            this.reset();
+            loadAttendance();
+        });
+
+        async function deleteAttendance(id) {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            loadAttendance();
+        }
+
+        loadAttendance();
+    </script>
+</body>
+</html>
